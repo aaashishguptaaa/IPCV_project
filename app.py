@@ -342,6 +342,8 @@ with tabs[0]:
                 result = run(original, settings, bg_image)
         except ModelMissingError as e:
             model_error(e)
+        except Exception as e:
+            st.error(f'Error during face analysis: {e}')
             result = None
         if result is not None:
             out = result.image
