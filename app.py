@@ -44,13 +44,7 @@ SAMPLE_DIR = os.path.join(APP_DIR, "sample_images")
 os.makedirs(SAVE_DIR, exist_ok=True)
 MAX_DIM = 1400
 
-TEAM = [
-    ("Anmol", "20231129", "Image enhancement & filter pipeline, presets, quality metrics"),
-    ("Vansh Gupta", "20233303", "Face detection, 478-point mesh, head pose & blink, Haar vs MediaPipe study"),
-    ("Shreyash Kumar Dube", "20233567", "Segmentation (portrait mode / backgrounds), AR overlays, beauty & privacy"),
-    ("Sparsh Singh", "20233277", "IPCV Concepts Lab, live camera, batch mode, UI, testing & documentation"),
-]
-
+TEAM = []
 st.set_page_config(page_title="Face Studio Camera", page_icon="📸", layout="wide",
                    initial_sidebar_state="expanded")
 
@@ -665,8 +659,8 @@ with tabs[5]:
                 "  ▼                                     ▼\n"
                 "1 Enhance → 2 Beauty → 3 Background → 4 Style → 5 Finishing → 6 AR → 7 Privacy\n"
                 "  ▼\nOutput + metrics (PSNR, SSIM, histograms, timing) → PNG / JPEG / ZIP", language=None)
-        st.subheader("Team")
-        table(pd.DataFrame(TEAM, columns=["Member", "Roll no.", "Contribution"]))
+        st.subheader("About the Project")
+        st.markdown("An interactive Computer Vision studio combining classical image processing with deep-learning facial analysis and segmentation.")
     with b:
         st.subheader("Model files")
         stat = model_status()

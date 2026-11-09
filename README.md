@@ -5,7 +5,7 @@
 > 🚀 **Live Web App:** [https://face-studio-camera.streamlit.app](https://face-studio-camera.streamlit.app)
 
 
-**IPCV Assignment · Section D · Team `14`**
+**Image Processing & Computer Vision (IPCV) Project**
 
 Face Studio Camera is a photo editor and live webcam studio we built for our Image Processing and Computer Vision course. You can upload a photo (or use your webcam), and the app can blur the background like a phone's portrait mode, smooth skin, put sunglasses or a party hat on faces, pixelate faces for privacy, turn the photo into a cartoon or a sketch, and a lot more.
 
@@ -28,7 +28,7 @@ Everything runs offline on a normal laptop CPU. No GPU, no cloud and no account 
 | Dataset(s) | [`datasets/test_faces/`](datasets/test_faces) and [`sample_images/`](sample_images) |
 | Implementation details | [`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md) (overview) and [`docs/Face_Studio_Camera_Technical_Guide.pdf`](docs/Face_Studio_Camera_Technical_Guide.pdf) (every feature, explained in detail) |
 | How to run the code | The [How to run it](#how-to-run-it) section below |
-| PPT presentation | [`presentation/Face_Studio_Camera_Presentation.pptx`](presentation/Face_Studio_Camera_Presentation.pptx) |
+| PPT presentation | [`presentation/PPT.pptx`](presentation/PPT.pptx) |
 | Final project report | [`report/Face_Studio_Camera_Report.pdf`](report/Face_Studio_Camera_Report.pdf) (also as `.docx`) |
 
 ---
@@ -228,16 +228,7 @@ Haar is very good on upright, frontal faces like these classic test images, but 
 | No faces found in a group photo | Keep **Multi-scale detection** switched on (sidebar → Face detection settings) |
 | `ImportError: libGL.so.1` (Linux) | `sudo apt install libgl1 libglib2.0-0` |
 
----
 
-## Team
-
-| Member | Roll no. | Main contribution |
-|---|---|---|
-| Anmol | 20231129 | Image enhancement, the 7-stage pipeline, presets, quality metrics |
-| Vansh Gupta | 20233303 | Face detection (multi-scale), face mesh, head pose and blinks, Haar vs MediaPipe study |
-| Shreyash Kumar Dube | 20233567 | Background segmentation, AR overlays, beauty and privacy filters |
-| Sparsh Singh | 20233277 | IPCV Lab, live camera, batch mode, user interface, testing and documentation |
 
 ---
 
@@ -247,4 +238,4 @@ Haar is very good on upright, frontal faces like these classic test images, but 
 - Haar cascade and test images: [OpenCV](https://github.com/opencv/opencv) and [opencv_extra](https://github.com/opencv/opencv_extra) (BSD licence); the CMU/MIT face test set is a standard research benchmark
 - Sample portrait: NASA (public domain)
 
-Made for the IPCV TA assignment, Section D, October 2026.
+Image Processing and Computer Vision Project.

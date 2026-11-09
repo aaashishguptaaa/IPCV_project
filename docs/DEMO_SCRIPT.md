@@ -16,16 +16,16 @@
 
 | Time | Who | What to show | What to say (one line) |
 |---|---|---|---|
-| 0:00 | **Sparsh** | Title slide, then the About tab | "One app, 6 modules, 7-stage pipeline; all processing runs locally." |
-| 0:45 | **Anmol** | Studio → Sample image → click **Portrait Pro** → drag the before/after slider | "Presets just set sliders; every stage stacks in a fixed order." |
-| 1:30 | Anmol | Reset → move Brightness, Contrast, Gamma, Sharpness; open **Results & metrics** | "PSNR/SSIM and histograms quantify how much each filter changes the image." |
-| 2:30 | **Shreyash** | Background → Blur, then **Custom image** (upload your background photo) | "The selfie segmenter gives a per-pixel person probability; we feather and alpha-composite." |
-| 3:15 | Shreyash | AR overlays: Sunglasses + Party Hat; Beauty: skin smoothing + lip tint; Privacy: Pixelate | "Overlays are drawn in a face-local frame, so they follow size and tilt." |
-| 4:15 | **Vansh** | Face Analysis → Detection on your **group photo**; open Face detection settings and untick Multi-scale | "Short-range BlazeFace misses small faces; tiling + NMS recovers them." |
-| 5:00 | Vansh | Head pose · eyes · mouth; then **Haar vs MediaPipe** → Run robustness test | "Haar fails on rotated faces; BlazeFace stays robust and one pass is roughly 20–30× faster." |
-| 6:00 | **Sparsh** | IPCV Lab → FFT high-pass, Noise & denoising (Median vs Gaussian on salt & pepper), Morphology | "These are the classical syllabus operations the app is built on." |
-| 7:00 | Sparsh | Terminal 2: `python live_camera.py` → keys 1 (sunglasses), 5 (head pose + blink counter: blink a few times), 8 (privacy blur), 0 (portrait mode) | "Real time at the FPS shown on screen, entirely on CPU." |
-| 8:30 | Sparsh | Batch tab: upload 3 photos → Process → download ZIP | "The same pipeline object powers batch, live and benchmark." |
+| 0:00 | **Presenter 1** | Title slide, then the About tab | "One app, 6 modules, 7-stage pipeline; all processing runs locally." |
+| 0:45 | **Presenter 2** | Studio → Sample image → click **Portrait Pro** → drag the before/after slider | "Presets just set sliders; every stage stacks in a fixed order." |
+| 1:30 | Presenter 2 | Reset → move Brightness, Contrast, Gamma, Sharpness; open **Results & metrics** | "PSNR/SSIM and histograms quantify how much each filter changes the image." |
+| 2:30 | **Presenter 3** | Background → Blur, then **Custom image** (upload your background photo) | "The selfie segmenter gives a per-pixel person probability; we feather and alpha-composite." |
+| 3:15 | Presenter 3 | AR overlays: Sunglasses + Party Hat; Beauty: skin smoothing + lip tint; Privacy: Pixelate | "Overlays are drawn in a face-local frame, so they follow size and tilt." |
+| 4:15 | **Presenter 4** | Face Analysis → Detection on your **group photo**; open Face detection settings and untick Multi-scale | "Short-range BlazeFace misses small faces; tiling + NMS recovers them." |
+| 5:00 | Presenter 4 | Head pose · eyes · mouth; then **Haar vs MediaPipe** → Run robustness test | "Haar fails on rotated faces; BlazeFace stays robust and one pass is roughly 20–30× faster." |
+| 6:00 | **Presenter 1** | IPCV Lab → FFT high-pass, Noise & denoising (Median vs Gaussian on salt & pepper), Morphology | "These are the classical syllabus operations the app is built on." |
+| 7:00 | Presenter 1 | Terminal 2: `python live_camera.py` → keys 1 (sunglasses), 5 (head pose + blink counter: blink a few times), 8 (privacy blur), 0 (portrait mode) | "Real time at the FPS shown on screen, entirely on CPU." |
+| 8:30 | Presenter 1 | Batch tab: upload 3 photos → Process → download ZIP | "The same pipeline object powers batch, live and benchmark." |
 | 9:00 | All | Conclusion slide, then questions | |
 
 ## Likely examiner questions (and short answers)
