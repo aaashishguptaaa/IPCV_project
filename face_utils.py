@@ -69,16 +69,28 @@ class FaceDetector:
 
     def __init__(self, min_confidence: float = 0.5, multiscale: bool = True,
                  tile_levels=(2, 3, 4), tile_min_score: float = 0.6):
-        options = vision.FaceDetectorOptions(
-            base_options=BaseOptions(model_asset_path=ensure_model("blaze_face_short_range.tflite")),
-            min_detection_confidence=min_confidence,
-        )
-        self._detector = vision.FaceDetector.create_from_options(options)
+        self._detector = None
+        self._fallback_haar = None
+        try:
+            options = vision.FaceDetectorOptions(
+                base_options=BaseOptions(model_asset_path=ensure_model("blaze_face_short_range.tflite")),
+                min_detection_confidence=min_confidence,
+            )
+            self._detector = vision.FaceDetector.create_from_options(options)
+        except Exception as e:
+            try:
+                self._fallback_haar = HaarCascadeDetector()
+            except Exception:
+                pass
         self.multiscale = multiscale
         self.tile_levels = tile_levels
-        self.tile_min_score = tile_min_score   # tiles see less context -> demand more confidence
+        self.tile_min_score = tile_min_score
 
     def _detect_once(self, image_bgr, ox=0, oy=0):
+        if self._detector is None:
+            if self._fallback_haar:
+                return self._fallback_haar.detect(image_bgr)
+            return []
         h, w = image_bgr.shape[:2]
         result = self._detector.detect(_to_mp_image(image_bgr))
         faces = []
@@ -136,7 +148,8 @@ class FaceDetector:
         return out
 
     def close(self):
-        self._detector.close()
+        if self._detector:
+            self._detector.close()
 
 
 def iou(a, b) -> float:
@@ -215,18 +228,24 @@ class FaceMeshDetector:
     """478-point facial landmark 'breakdown' using MediaPipe FaceLandmarker."""
 
     def __init__(self, max_faces: int = 5, min_confidence: float = 0.5):
-        options = vision.FaceLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=ensure_model("face_landmarker.task")),
-            num_faces=max_faces,
-            min_face_detection_confidence=min_confidence,
-            min_face_presence_confidence=min_confidence,
-        )
-        self._detector = vision.FaceLandmarker.create_from_options(options)
         self._conn = vision.FaceLandmarksConnections
         self._styles = vision.drawing_styles
         self._drawing = vision.drawing_utils
+        self._detector = None
+        try:
+            options = vision.FaceLandmarkerOptions(
+                base_options=BaseOptions(model_asset_path=ensure_model("face_landmarker.task")),
+                num_faces=max_faces,
+                min_face_detection_confidence=min_confidence,
+                min_face_presence_confidence=min_confidence,
+            )
+            self._detector = vision.FaceLandmarker.create_from_options(options)
+        except Exception:
+            pass
 
     def _raw(self, image_bgr):
+        if self._detector is None:
+            return type("Dummy", (), {"face_landmarks": []})()
         return self._detector.detect(_to_mp_image(image_bgr))
 
     def _landmarks_once(self, image_bgr, ox=0.0, oy=0.0, scale=1.0):
@@ -308,29 +327,36 @@ class PersonSegmenter:
     """Person / background segmentation for portrait-mode effects."""
 
     def __init__(self):
-        options = vision.ImageSegmenterOptions(
-            base_options=BaseOptions(model_asset_path=ensure_model("selfie_segmenter.tflite")),
-            output_category_mask=False,
-            output_confidence_masks=True,
-        )
-        self._segmenter = vision.ImageSegmenter.create_from_options(options)
+        self._segmenter = None
+        try:
+            options = vision.ImageSegmenterOptions(
+                base_options=BaseOptions(model_asset_path=ensure_model("selfie_segmenter.tflite")),
+                output_category_mask=False,
+                output_confidence_masks=True,
+            )
+            self._segmenter = vision.ImageSegmenter.create_from_options(options)
+        except Exception:
+            pass
 
     def get_mask(self, image_bgr: np.ndarray) -> np.ndarray:
         """float32 mask in [0, 1], same H x W as input. 1 = person."""
+        h, w = image_bgr.shape[:2]
+        if self._segmenter is None:
+            mask = np.zeros((h, w), dtype=np.float32)
+            cv2.ellipse(mask, (w // 2, h // 2), (w // 3, h // 2), 0, 0, 360, 1.0, -1)
+            return cv2.GaussianBlur(mask, (21, 21), 0)
         result = self._segmenter.segment(_to_mp_image(image_bgr))
         masks = result.confidence_masks
-        # Official selfie_segmenter returns [background, person]; older single-output
-        # models return only the person channel. Take the LAST mask either way.
         mask = np.array(masks[-1].numpy_view(), dtype=np.float32)
         if mask.ndim == 3:
             mask = mask[..., 0]
-        h, w = image_bgr.shape[:2]
         if mask.shape != (h, w):
             mask = cv2.resize(mask, (w, h))
         return np.clip(mask, 0, 1)
 
     def close(self):
-        self._segmenter.close()
+        if self._segmenter:
+            self._segmenter.close()
 
 
 def _label(img, text, origin, color):

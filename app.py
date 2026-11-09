@@ -343,6 +343,8 @@ with tabs[0]:
         except ModelMissingError as e:
             model_error(e)
         except Exception as e:
+            st.error(f"Face Analysis error: {e}")
+        except Exception as e:
             st.error(f'Error during face analysis: {e}')
             result = None
         if result is not None:
