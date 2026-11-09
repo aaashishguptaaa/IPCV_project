@@ -596,11 +596,34 @@ with tabs[3]:
             st.caption("Click **START** and allow camera access. Runs fully on this computer.")
             st.caption("Tip: the desktop window `python live_camera.py` is faster and needs no browser.")
         with c2:
-            models = StreamlitModels()
+            RTC_CONFIGURATION = {
+                "iceServers": [
+                    {"urls": [
+                        "stun:stun.l.google.com:19302",
+                        "stun:stun1.l.google.com:19302",
+                        "stun:stun2.l.google.com:19302",
+                        "stun:stun3.l.google.com:19302",
+                        "stun:stun4.l.google.com:19302",
+                    ]},
+                    {"urls": [
+                        "stun:stun.relay.metered.ca:80",
+                    ]}
+                ]
+            }
+
+            # Eagerly load model singletons on main thread for thread-safety
+            det_inst = get_detector()
+            mesh_inst = get_mesh()
+            seg_inst = get_segmenter()
+
+            class EagerModels:
+                detector = det_inst
+                mesh = mesh_inst
+                segmenter = seg_inst
 
             class Proc:
                 def __init__(self):
-                    self.lp = live.LiveProcessor(models)
+                    self.lp = live.LiveProcessor(EagerModels())
 
                 def recv(self, frame):
                     import av as _av
@@ -611,9 +634,14 @@ with tabs[3]:
                         cv2.putText(img, f"Error: {exc}"[:80], (10, 30), 0, 0.6, (0, 0, 255), 2)
                     return _av.VideoFrame.from_ndarray(img, format="bgr24")
 
-            ctx = webrtc_streamer(key="live", mode=WebRtcMode.SENDRECV, video_processor_factory=Proc,
-                                  media_stream_constraints={"video": {"width": 960, "height": 540}, "audio": False},
-                                  async_processing=True)
+            ctx = webrtc_streamer(
+                key="live",
+                mode=WebRtcMode.SENDRECV,
+                rtc_configuration=RTC_CONFIGURATION,
+                video_processor_factory=Proc,
+                media_stream_constraints={"video": {"width": {"ideal": 640}, "height": {"ideal": 480}}, "audio": False},
+                async_processing=True
+            )
             if ctx.video_processor:
                 ctx.video_processor.lp.mode = live_mode
                 ctx.video_processor.lp.mirror = mirror
