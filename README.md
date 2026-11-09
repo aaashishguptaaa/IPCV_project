@@ -1,5 +1,10 @@
 # Face Studio Camera
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://face-studio-camera.streamlit.app)
+
+> 🚀 **Live Web App:** [https://face-studio-camera.streamlit.app](https://face-studio-camera.streamlit.app)
+
+
 **IPCV Assignment · Section D · Team `14`**
 
 Face Studio Camera is a photo editor and live webcam studio we built for our Image Processing and Computer Vision course. You can upload a photo (or use your webcam), and the app can blur the background like a phone's portrait mode, smooth skin, put sunglasses or a party hat on faces, pixelate faces for privacy, turn the photo into a cartoon or a sketch, and a lot more.
