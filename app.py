@@ -579,8 +579,8 @@ with tabs[2]:
 # ============================ LIVE CAMERA ============================
 with tabs[3]:
     try:
-        import av  # noqa: F401
-        from streamlit_webrtc import webrtc_streamer, WebRtcMode
+        import av
+        from streamlit_webrtc import RTCConfiguration, VideoProcessorBase, webrtc_streamer, WebRtcMode
         import live_effects as live
         HAVE_WEBRTC = True
     except Exception:  # noqa: BLE001
@@ -593,24 +593,19 @@ with tabs[3]:
         with c1:
             live_mode = st.selectbox("Live effect", live.LIVE_MODES)
             mirror = st.checkbox("Mirror (selfie view)", True)
-            st.caption("Click **START** and allow camera access. Runs fully on this computer.")
+            st.caption("Click **START** and allow camera access.")
             st.caption("Tip: the desktop window `python live_camera.py` is faster and needs no browser.")
         with c2:
-            RTC_CONFIGURATION = {
-                "iceServers": [
-                    {"urls": ["stun:stun.l.google.com:19302"]},
-                    {"urls": ["stun:openrelay.metered.ca:80"]},
-                    {
-                        "urls": [
-                            "turn:openrelay.metered.ca:80",
-                            "turn:openrelay.metered.ca:443",
-                            "turn:openrelay.metered.ca:443?transport=tcp",
-                        ],
-                        "username": "openrelayproject",
-                        "credential": "openrelayproject",
-                    },
-                ]
-            }
+            RTC_CONFIGURATION = RTCConfiguration(
+                {
+                    "iceServers": [
+                        {"urls": ["stun:stun.l.google.com:19302"]},
+                        {"urls": ["stun:stun1.l.google.com:19302"]},
+                        {"urls": ["stun:stun2.l.google.com:19302"]},
+                        {"urls": ["stun:global.stun.twilio.com:3478"]},
+                    ]
+                }
+            )
 
             # Eagerly load model singletons on main thread for thread-safety
             det_inst = get_detector()
@@ -622,30 +617,40 @@ with tabs[3]:
                 mesh = mesh_inst
                 segmenter = seg_inst
 
-            class Proc:
+            class Proc(VideoProcessorBase):
                 def __init__(self):
                     self.lp = live.LiveProcessor(EagerModels())
 
-                def recv(self, frame):
-                    import av as _av
+                def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
                     img = frame.to_ndarray(format="bgr24")
                     try:
                         img = self.lp.process(img)
                     except Exception as exc:  # noqa: BLE001
                         cv2.putText(img, f"Error: {exc}"[:80], (10, 30), 0, 0.6, (0, 0, 255), 2)
-                    return _av.VideoFrame.from_ndarray(img, format="bgr24")
+                    return av.VideoFrame.from_ndarray(img, format="bgr24")
 
             ctx = webrtc_streamer(
                 key="live",
                 mode=WebRtcMode.SENDRECV,
                 rtc_configuration=RTC_CONFIGURATION,
                 video_processor_factory=Proc,
-                media_stream_constraints={"video": {"width": {"ideal": 640}, "height": {"ideal": 480}}, "audio": False},
-                async_processing=True
+                media_stream_constraints={"video": True, "audio": False},
+                async_processing=True,
             )
             if ctx.video_processor:
                 ctx.video_processor.lp.mode = live_mode
                 ctx.video_processor.lp.mirror = mirror
+
+            with st.expander("📸 Alternative: Snap from Webcam (100% Reliable without WebRTC)"):
+                snap = st.camera_input("Take photo with effect", key="tab3_snap")
+                if snap:
+                    s_img = decode(snap.getvalue())
+                    if mirror:
+                        s_img = cv2.flip(s_img, 1)
+                    proc_inst = live.LiveProcessor(EagerModels())
+                    proc_inst.mode = live_mode
+                    proc_inst.mirror = False
+                    st.image(proc_inst.process(s_img), channels="BGR", use_container_width=True)
 
 # =============================== BATCH ===============================
 with tabs[4]:
