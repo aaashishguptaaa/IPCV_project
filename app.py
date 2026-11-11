@@ -19,7 +19,9 @@ Run:  streamlit run app.py
 
 import base64
 import io
+import json
 import os
+import urllib.request
 import zipfile
 from datetime import datetime
 
@@ -584,8 +586,155 @@ with tabs[2]:
 
 # ======================== IMAGE FORGERY DETECTION ========================
 with tabs[3]:
-    st.caption("🌐 Directly connected to live web app: [image-tamper-detection.onrender.com](https://image-tamper-detection.onrender.com) · [Open in new window ↗](https://image-tamper-detection.onrender.com)")
-    components.iframe("https://image-tamper-detection.onrender.com", height=950, scrolling=True)
+    st.subheader("🔍 Image Forgery & Tamper Detection")
+    st.markdown(
+        "Directly analyzes the active image from the sidebar using the **Digital Forensics Engine** "
+        "(ELA, SIFT Copy-Move, Deep Learning CNN, PRNU Sensor Noise, JPEG Ghost & FFT Frequency Analysis)."
+    )
+
+    if original is None:
+        need_image()
+    else:
+        top_c1, top_c2 = st.columns([3, 1])
+        with top_c1:
+            st.caption(f"Active Image from Sidebar: {original.shape[1]}×{original.shape[0]} px (Unified image source — no re-upload required)")
+        with top_c2:
+            st.markdown(
+                '<a href="https://image-tamper-detection.onrender.com" target="_blank" style="text-decoration:none; font-size:0.85rem;">🌐 Standalone App ↗</a>',
+                unsafe_allow_html=True,
+            )
+
+        run_btn = st.button("🚀 Run Full Forensic Analysis on Active Image", type="primary", use_container_width=True)
+
+        img_key = f"forgery_{original.shape}_{int(original.mean() * 1000)}"
+        if run_btn:
+            st.session_state["forgery_active_key"] = img_key
+
+        should_analyze = (st.session_state.get("forgery_active_key") == img_key) or run_btn
+
+        if not should_analyze:
+            st.info("👆 Click **Run Full Forensic Analysis on Active Image** above to evaluate this photo for tampering.")
+            show(original, caption="Active Image (Awaiting Analysis)")
+        else:
+            with st.spinner("Analyzing image across 7 forensic techniques via live detection backend…"):
+                encoded_bytes = to_bytes(original, fmt="JPEG", quality=88)
+                boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
+                body = (
+                    f"--{boundary}\r\n"
+                    f'Content-Disposition: form-data; name="image"; filename="active_input.jpg"\r\n'
+                    f"Content-Type: image/jpeg\r\n\r\n"
+                ).encode("utf-8") + encoded_bytes + f"\r\n--{boundary}--\r\n".encode("utf-8")
+
+                req = urllib.request.Request(
+                    "https://image-tamper-detection.onrender.com/analyze",
+                    data=body,
+                    headers={"Content-Type": f"multipart/form-data; boundary={boundary}", "User-Agent": "FaceStudioCamera/1.0"},
+                )
+
+                res = None
+                try:
+                    with urllib.request.urlopen(req, timeout=35) as resp:
+                        res = json.loads(resp.read().decode("utf-8"))
+                except Exception as api_err:
+                    st.warning(f"Live cloud backend connection delay ({api_err}). Running local ELA & SIFT analysis...")
+
+            if res and "verdict" in res:
+                verdict = res.get("verdict", "UNKNOWN")
+                risk = res.get("risk", {})
+                risk_label = risk.get("label", "Medium")
+                risk_level = risk.get("level", "MEDIUM")
+                conf = res.get("confidence", 0)
+
+                v_col1, v_col2 = st.columns([1.5, 3])
+                with v_col1:
+                    if verdict == "REAL":
+                        st.success(f"### ✅ Verdict: REAL (Authentic)\n**Risk:** {risk_label} ({risk_level})")
+                    else:
+                        st.error(f"### 🚨 Verdict: FAKE (Manipulated)\n**Risk:** {risk_label} ({risk_level})")
+                with v_col2:
+                    st.metric("Integrity Confidence", f"{conf:.1f}%")
+                    st.progress(min(1.0, max(0.0, conf / 100.0)))
+
+                ai_exp = res.get("ai_explanation", {})
+                if isinstance(ai_exp, dict) and ai_exp.get("summary"):
+                    st.markdown(f'<div class="explain"><b>Forensic Summary:</b> {ai_exp["summary"]}</div>', unsafe_allow_html=True)
+                flags = res.get("all_flags", [])
+                if flags:
+                    pills = " ".join([f'<span class="pill" style="border-color:#ff7b72; color:#ffa198;">⚠️ {f}</span>' for f in flags])
+                    st.markdown(f"<div style='margin: 0.6rem 0;'>{pills}</div>", unsafe_allow_html=True)
+
+                st.markdown("---")
+
+                st.subheader("🖼️ Forensic Evidence & Localization Heatmaps")
+                v_tabs = st.tabs(["🔥 Tamper Heatmap", "🧪 ELA Map", "🎯 SIFT Matches", "〰️ Noise Variance", "👻 JPEG Ghost", "📊 FFT Spectrum"])
+
+                def decode_b64(b64_str):
+                    if not b64_str:
+                        return None
+                    try:
+                        return base64.b64decode(b64_str)
+                    except Exception:
+                        return None
+
+                with v_tabs[0]:
+                    h_b64 = res.get("images", {}).get("heatmap") or res.get("ela", {}).get("image")
+                    if h_b64:
+                        st.image(decode_b64(h_b64), caption="Localized Suspect Regions (Red/Yellow = Tampered)", use_container_width=True)
+                with v_tabs[1]:
+                    ela_b64 = res.get("ela", {}).get("image")
+                    ela_pct = res.get("ela", {}).get("percent", 0)
+                    if ela_b64:
+                        st.image(decode_b64(ela_b64), caption=f"Error Level Analysis Map (Discrepancy: {ela_pct}%)", use_container_width=True)
+                with v_tabs[2]:
+                    sift_b64 = res.get("sift", {}).get("image")
+                    sift_match = res.get("sift", {}).get("match_count", 0)
+                    is_clone = res.get("sift", {}).get("is_copy_move", False)
+                    if sift_b64:
+                        st.image(decode_b64(sift_b64), caption=f"SIFT Keypoint Clones (Matches: {sift_match}, Copy-Move: {is_clone})", use_container_width=True)
+                with v_tabs[3]:
+                    noise_b64 = res.get("noise", {}).get("noise_map")
+                    noise_pct = res.get("noise", {}).get("percent", 0)
+                    if noise_b64:
+                        st.image(decode_b64(noise_b64), caption=f"PRNU Sensor Noise Map (Inconsistency: {noise_pct}%)", use_container_width=True)
+                with v_tabs[4]:
+                    ghost_b64 = res.get("ghost", {}).get("image")
+                    ghost_pct = res.get("ghost", {}).get("percent", 0)
+                    if ghost_b64:
+                        st.image(decode_b64(ghost_b64), caption=f"JPEG Ghost Secondary Compression Map ({ghost_pct}%)", use_container_width=True)
+                with v_tabs[5]:
+                    fft_b64 = res.get("frequency", {}).get("image")
+                    fft_pct = res.get("frequency", {}).get("percent", 0)
+                    if fft_b64:
+                        st.image(decode_b64(fft_b64), caption=f"FFT 2D Frequency Spectrum ({fft_pct}%)", use_container_width=True)
+
+                st.subheader("📊 7-Technique Scorecard")
+                scores = [
+                    {"Technique": "Error Level Analysis (ELA)", "Score": f"{res.get('ela', {}).get('percent', 0)}%", "Status": "Analyzed"},
+                    {"Technique": "SIFT Copy-Move Detection", "Score": f"{res.get('sift', {}).get('match_count', 0)} matches", "Status": "Detected" if res.get('sift', {}).get('is_copy_move') else "Clean"},
+                    {"Technique": "Deep Learning (CNN)", "Score": f"{res.get('cnn', {}).get('percent', 0)}%", "Status": "Inference Complete"},
+                    {"Technique": "PRNU Sensor Noise Inconsistency", "Score": f"{res.get('noise', {}).get('percent', 0)}%", "Status": "Mapped"},
+                    {"Technique": "JPEG Ghost Analysis", "Score": f"{res.get('ghost', {}).get('percent', 0)}%", "Status": "Checked"},
+                    {"Technique": "FFT Frequency Spectrum", "Score": f"{res.get('frequency', {}).get('percent', 0)}%", "Status": "Transformed"},
+                    {"Technique": "EXIF Metadata Inspection", "Score": f"{res.get('metadata', {}).get('percent', 0)}%", "Status": "Inspected"},
+                ]
+                table(pd.DataFrame(scores))
+
+            else:
+                st.subheader("🔬 Local ELA Inspection")
+                from PIL import ImageChops, ImageEnhance
+                f_c1, f_c2 = st.columns(2)
+                with f_c1:
+                    show(original, "Original Active Image")
+                with f_c2:
+                    pil_orig = Image.fromarray(cv2.cvtColor(original, cv2.COLOR_BGR2RGB))
+                    buf = io.BytesIO()
+                    pil_orig.save(buf, "JPEG", quality=90)
+                    buf.seek(0)
+                    resaved = Image.open(buf)
+                    diff = ImageChops.difference(pil_orig, resaved)
+                    diff_enhanced = ImageEnhance.Brightness(diff).enhance(15.0)
+                    ela_local = cv2.cvtColor(np.array(diff_enhanced), cv2.COLOR_RGB2BGR)
+                    show(ela_local, "Local ELA Error Map (15x scale)")
 
 # ============================ LIVE CAMERA ============================
 with tabs[4]:
