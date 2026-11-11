@@ -50,10 +50,10 @@ TEAM = [
     ("Aashish Gupta Rauniyar", "20233501", "Studio editing pipeline, presets, enhancement filters & quality metrics (PSNR, SSIM)"),
     ("Bishal Ranjan Sah", "20233515", "Multi-scale face detection, 478-point mesh, head pose & Haar benchmark"),
     ("Anubhav Kaushik", "20233068", "Person segmentation, background replacement, AR overlays, beauty & privacy filters"),
-    ("Amit Kumar", "20233046", "IPCV Concepts Lab (8 syllabus topics), live camera processing, UI design & testing"),
-    ("Ashish Gupta", "20233511", "Digital image forensics & forgery detection (ELA, SIFT copy-move, CNN, noise & ghost)"),
+    ("Amit Kumar", "20233046", "Digital image forensics & forgery detection (ELA, SIFT copy-move, CNN, noise & ghost)"),
+    ("Ashish Gupta", "20233511", "IPCV Concepts Lab (8 syllabus topics), live camera processing, UI design & testing"),
 ]
-st.set_page_config(page_title="Face Studio Camera", page_icon="📸", layout="wide",
+st.set_page_config(page_title="Face Studio & Forgery Detection", page_icon="📸", layout="wide",
                    initial_sidebar_state="expanded")
 
 st.markdown("""
@@ -246,10 +246,9 @@ def compare_slider(before, after, height_hint=760):
 # ----------------------------------------------------------------------
 # Header & image source
 # ----------------------------------------------------------------------
-st.markdown('<p style="margin:0"><span style="font-size:2rem">📸</span> <span class="app-title">Face Studio Camera</span></p>',
+st.markdown('<p style="margin:0"><span style="font-size:2rem">📸</span> <span class="app-title">Face Studio Camera &amp; Forgery Detection</span></p>',
             unsafe_allow_html=True)
-st.markdown('<p class="app-sub">Image Processing &amp; Computer Vision project — OpenCV + MediaPipe '
-            '(deep-learning face analysis, no Haar cascades in the main pipeline)</p>', unsafe_allow_html=True)
+st.markdown('<p class="app-sub">Image Processing &amp; Computer Vision project — Forgery Detection and Localization (ELA, SIFT, CNN) + Real-Time Face Analysis Studio</p>', unsafe_allow_html=True)
 
 sb = st.sidebar
 sb.header("📷 Image source")

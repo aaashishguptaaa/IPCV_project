@@ -1,34 +1,37 @@
-# Face Studio Camera
+# Face Studio Camera & Image Forgery Detection
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://face-studio-camera.streamlit.app)
 
-> 🚀 **Live Web App:** [https://face-studio-camera.streamlit.app](https://face-studio-camera.streamlit.app)
+> 🚀 **Live Web App:** [https://face-studio-camera.streamlit.app](https://face-studio-camera.streamlit.app)  
+> 🔍 **Forensics Backend API:** [https://image-tamper-detection.onrender.com](https://image-tamper-detection.onrender.com)
 
+**Image Processing & Computer Vision (IPCV) Project · Section A · Team No. 1**  
+**Topic:** *Forgery Detection and Localization using ELA, SIFT and CNN with Face Studio Camera*
 
-**Image Processing & Computer Vision (IPCV) Project**
+Face Studio Camera & Forgery Detection is an integrated photo editing studio, live webcam system, and digital forensics suite built for our Image Processing and Computer Vision course. You can upload a photo (or use your webcam) to edit, enhance, anonymize, and inspect images, as well as perform forensic tamper detection to spot spliced, cloned (copy-move), and manipulated content.
 
-Face Studio Camera is a photo editor and live webcam studio we built for our Image Processing and Computer Vision course. You can upload a photo (or use your webcam), and the app can blur the background like a phone's portrait mode, smooth skin, put sunglasses or a party hat on faces, pixelate faces for privacy, turn the photo into a cartoon or a sketch, and a lot more.
+Under the hood it mixes core syllabus techniques and modern deep learning:
 
-Under the hood it mixes two things we learned about in class:
+- **Classical image processing** with OpenCV & NumPy: brightness, contrast, CLAHE, spatial filtering, edge detection, morphological operations, affine transforms, and the 2D Fourier transform (FFT).
+- **Deep-learning face analysis** with Google MediaPipe: BlazeFace detection, 478-point 3D face mesh, head pose estimation, blink/mouth detection, and per-pixel person segmentation.
+- **Digital image forensics:** Error Level Analysis (ELA), SIFT keypoint descriptor matching, PRNU camera sensor pattern noise consistency, JPEG ghost analysis, and deep convolutional neural network (CNN) tamper localization.
 
-- **Classical image processing** with OpenCV: brightness and contrast, histogram equalisation, filtering, edge detection, thresholding, morphology and the Fourier transform.
-- **Deep-learning face analysis** with Google's MediaPipe: three small pre-trained models that find faces, place 478 points on each face, and separate a person from the background.
-
-Everything runs offline on a normal laptop CPU. No GPU, no cloud and no account are needed.
+Everything runs locally on a laptop CPU, with instant cloud deployment on Streamlit Cloud.
 
 ![The Studio tab with a before/after slider](docs/screenshots/studio_tab.jpg)
 
 ---
 
-## What's in this repository
+## 📥 Project Deliverables & Downloads
 
-| What the assignment asked for | Where to find it |
-|---|---|
-| Source code | The `.py` files in this folder (start with `app.py`) |
-| Dataset(s) | [`datasets/test_faces/`](datasets/test_faces) and [`sample_images/`](sample_images) |
-| Implementation details | [`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md) (overview) and [`docs/Face_Studio_Camera_Technical_Guide.pdf`](docs/Face_Studio_Camera_Technical_Guide.pdf) (every feature, explained in detail) |
-| How to run the code | The [How to run it](#how-to-run-it) section below |
-| Final project report | [`report/Face_Studio_Camera_Report.pdf`](report/Face_Studio_Camera_Report.pdf) (also as `.docx`) |
+| Deliverable | Format | File Link | Description |
+|---|---|---|---|
+| 📄 **Final Project Report** | PDF | [**`report/report.pdf`**](report/report.pdf) · [Root link](report.pdf) | Comprehensive 5-page IPCV project report with evaluation and benchmarks |
+| 📝 **Project Report (Word)** | DOCX | [**`report/report.docx`**](report/report.docx) · [Root link](report.docx) | Fully formatted editable Word document |
+| 📘 **Technical Guide** | PDF | [**`docs/guide.pdf`**](docs/guide.pdf) · [Root link](guide.pdf) | 39-page in-depth technical manual with worked numeric examples |
+| 📊 **Presentation Slides** | PPTX | [**`presentation/presentation.pptx`**](presentation/presentation.pptx) · [Root link](presentation.pptx) | 14-slide defense presentation with module breakdowns & visual results |
+| 💻 **Main Application** | Python | [`app.py`](app.py) | Streamlit interface, editing pipeline & live forensic integration |
+| 🎯 **Evaluation Datasets** | Images / CSV | [`datasets/test_faces/`](datasets/test_faces) · [`sample_images/`](sample_images) | Benchmark test faces, ground truth annotations, and sample images |
 
 ---
 
@@ -47,6 +50,13 @@ Everything runs offline on a normal laptop CPU. No GPU, no cloud and no account 
 You also get 7 one-click presets, a before/after slider you can drag, and a metrics panel showing PSNR, SSIM, histograms and how long each stage took.
 
 **Face Analysis tab:** face detection with confidence scores, the 478-point face mesh, head pose (yaw, pitch, roll), blink and mouth-open detection, face symmetry, and a side-by-side **Haar cascade vs MediaPipe** comparison with a 12-condition robustness test.
+
+**Image Forgery tab: digital image forensics & tamper detection**
+- **Error Level Analysis (ELA):** Detects compression rate mismatches between host and spliced regions with interactive JPEG quality ($Q=90$) and scale amplification ($15\times$).
+- **SIFT Copy-Move Keypoint Matching:** Identifies cloned and duplicated patches with Lowe's ratio test ($d_1/d_2 < 0.75$) and Euclidean spatial filtering ($D \ge 30\text{ px}$).
+- **PRNU Sensor Noise & JPEG Ghost:** High-frequency noise variance consistency across $32\times 32$ blocks and secondary recompression error tracking.
+- **Deep CNN Classifier & Localization Heatmaps:** Convolutional neural network predicting authentic vs manipulated probabilities with pixel-level Class Activation Heatmaps.
+- **Unified Active Image Workflow:** Directly analyzes the active photo from the sidebar with one click via live Render API connection without re-uploading.
 
 **IPCV Lab tab:** eight classic syllabus topics, live on your photo: colour spaces, histogram equalisation and CLAHE, noise and denoising, edge detection (Sobel, Prewitt, Laplacian, Canny), thresholding (Otsu, adaptive), morphology, frequency-domain (FFT) filtering, and geometric transforms.
 
@@ -247,7 +257,7 @@ Haar is very good on upright, frontal faces like these classic test images, but 
 | **Aashish Gupta Rauniyar** | 20233501 | Studio editing pipeline, presets, enhancement filters & quality metrics (PSNR, SSIM) |
 | **Bishal Ranjan Sah** | 20233515 | Multi-scale face detection, 478-point mesh, head pose & Haar benchmark |
 | **Anubhav Kaushik** | 20233068 | Person segmentation, background replacement, AR overlays, beauty & privacy filters |
-| **Amit Kumar** | 20233046 | IPCV Concepts Lab (8 syllabus topics), live camera processing, UI design & testing |
-| **Ashish Gupta** | 20233511 | Digital image forensics & forgery detection (ELA, SIFT copy-move, CNN, noise & ghost) |
+| **Amit Kumar** | 20233046 | Digital image forensics & forgery detection (ELA, SIFT copy-move, CNN, noise & ghost) |
+| **Ashish Gupta** | 20233511 | IPCV Concepts Lab (8 syllabus topics), live camera processing, UI design & testing |
 
 Image Processing and Computer Vision Project · Section A · Team No. 1.
