@@ -668,44 +668,45 @@ with tabs[3]:
                 st.subheader("🖼️ Forensic Evidence & Localization Heatmaps")
                 v_tabs = st.tabs(["🔥 Tamper Heatmap", "🧪 ELA Map", "🎯 SIFT Matches", "〰️ Noise Variance", "👻 JPEG Ghost", "📊 FFT Spectrum"])
 
-                def decode_b64(b64_str):
+                def show_b64(b64_str, caption=None):
                     if not b64_str:
-                        return None
+                        st.info(f"No visual map generated for {caption or 'this technique'}.")
+                        return
                     try:
-                        return base64.b64decode(b64_str)
-                    except Exception:
-                        return None
+                        clean_b64 = b64_str.split(",", 1)[1] if "," in b64_str else b64_str
+                        raw = base64.b64decode(clean_b64)
+                        pil_im = Image.open(io.BytesIO(raw))
+                        try:
+                            st.image(pil_im, caption=caption, width="stretch")
+                        except TypeError:
+                            st.image(pil_im, caption=caption, use_container_width=True)
+                    except Exception as err:
+                        st.warning(f"Could not render {caption or 'evidence image'}: {err}")
 
                 with v_tabs[0]:
                     h_b64 = res.get("images", {}).get("heatmap") or res.get("ela", {}).get("image")
-                    if h_b64:
-                        st.image(decode_b64(h_b64), caption="Localized Suspect Regions (Red/Yellow = Tampered)", use_container_width=True)
+                    show_b64(h_b64, "Localized Suspect Regions (Red/Yellow = Tampered)")
                 with v_tabs[1]:
                     ela_b64 = res.get("ela", {}).get("image")
                     ela_pct = res.get("ela", {}).get("percent", 0)
-                    if ela_b64:
-                        st.image(decode_b64(ela_b64), caption=f"Error Level Analysis Map (Discrepancy: {ela_pct}%)", use_container_width=True)
+                    show_b64(ela_b64, f"Error Level Analysis Map (Discrepancy: {ela_pct}%)")
                 with v_tabs[2]:
                     sift_b64 = res.get("sift", {}).get("image")
                     sift_match = res.get("sift", {}).get("match_count", 0)
                     is_clone = res.get("sift", {}).get("is_copy_move", False)
-                    if sift_b64:
-                        st.image(decode_b64(sift_b64), caption=f"SIFT Keypoint Clones (Matches: {sift_match}, Copy-Move: {is_clone})", use_container_width=True)
+                    show_b64(sift_b64, f"SIFT Keypoint Clones (Matches: {sift_match}, Copy-Move: {is_clone})")
                 with v_tabs[3]:
                     noise_b64 = res.get("noise", {}).get("noise_map")
                     noise_pct = res.get("noise", {}).get("percent", 0)
-                    if noise_b64:
-                        st.image(decode_b64(noise_b64), caption=f"PRNU Sensor Noise Map (Inconsistency: {noise_pct}%)", use_container_width=True)
+                    show_b64(noise_b64, f"PRNU Sensor Noise Map (Inconsistency: {noise_pct}%)")
                 with v_tabs[4]:
                     ghost_b64 = res.get("ghost", {}).get("image")
                     ghost_pct = res.get("ghost", {}).get("percent", 0)
-                    if ghost_b64:
-                        st.image(decode_b64(ghost_b64), caption=f"JPEG Ghost Secondary Compression Map ({ghost_pct}%)", use_container_width=True)
+                    show_b64(ghost_b64, f"JPEG Ghost Secondary Compression Map ({ghost_pct}%)")
                 with v_tabs[5]:
                     fft_b64 = res.get("frequency", {}).get("image")
                     fft_pct = res.get("frequency", {}).get("percent", 0)
-                    if fft_b64:
-                        st.image(decode_b64(fft_b64), caption=f"FFT 2D Frequency Spectrum ({fft_pct}%)", use_container_width=True)
+                    show_b64(fft_b64, f"FFT 2D Frequency Spectrum ({fft_pct}%)")
 
                 st.subheader("📊 7-Technique Scorecard")
                 scores = [
