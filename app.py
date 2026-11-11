@@ -47,11 +47,11 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 MAX_DIM = 1400
 
 TEAM = [
-    ("Aashish Gupta Rauniyar", "20233501", "Project architecture, multi-scale face detection & pipeline integration"),
-    ("Bishal Ramjan Sah", "20233515", "478-point face mesh, head pose estimation & Haar vs MediaPipe benchmarking"),
-    ("Amit Kumar", "20233046", "Enhancement filters, beauty filters & image quality metrics (PSNR, SSIM)"),
-    ("Ashish Gupta", "20233511", "Portrait segmentation, background replacement & AR facial overlays"),
-    ("Anubhav Kaushik", "20233068", "IPCV Lab demonstrations, live camera processing, UI design & testing"),
+    ("Aashish Gupta Rauniyar", "20233501", "Studio editing pipeline, presets, enhancement filters & quality metrics (PSNR, SSIM)"),
+    ("Bishal Ranjan Sah", "20233515", "Multi-scale face detection, 478-point mesh, head pose & Haar benchmark"),
+    ("Anubhav Kaushik", "20233068", "Person segmentation, background replacement, AR overlays, beauty & privacy filters"),
+    ("Amit Kumar", "20233046", "IPCV Concepts Lab (8 syllabus topics), live camera processing, UI design & testing"),
+    ("Ashish Gupta", "20233511", "Digital image forensics & forgery detection (ELA, SIFT copy-move, CNN, noise & ghost)"),
 ]
 st.set_page_config(page_title="Face Studio Camera", page_icon="📸", layout="wide",
                    initial_sidebar_state="expanded")
