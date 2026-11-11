@@ -28,7 +28,6 @@ Everything runs offline on a normal laptop CPU. No GPU, no cloud and no account 
 | Dataset(s) | [`datasets/test_faces/`](datasets/test_faces) and [`sample_images/`](sample_images) |
 | Implementation details | [`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md) (overview) and [`docs/Face_Studio_Camera_Technical_Guide.pdf`](docs/Face_Studio_Camera_Technical_Guide.pdf) (every feature, explained in detail) |
 | How to run the code | The [How to run it](#how-to-run-it) section below |
-| PPT presentation | [`presentation/PPT.pptx`](presentation/PPT.pptx) |
 | Final project report | [`report/Face_Studio_Camera_Report.pdf`](report/Face_Studio_Camera_Report.pdf) (also as `.docx`) |
 
 ---
@@ -213,7 +212,6 @@ Haar is very good on upright, frontal faces like these classic test images, but 
 ├── datasets/test_faces/   Test images + ground truth for the benchmark
 ├── tests/                 Unit tests (pytest)
 ├── docs/                  Implementation notes, technical guide, demo script, results, screenshots
-├── presentation/          PPT presentation
 └── report/                Final project report (PDF and Word)
 ```
 

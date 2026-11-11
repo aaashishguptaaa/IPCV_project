@@ -5,3 +5,4 @@ models/*.tflite
 models/*.task
 saved_images/*
 !saved_images/.gitkeep
+presentation/
