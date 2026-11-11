@@ -51,6 +51,8 @@ You also get 7 one-click presets, a before/after slider you can drag, and a metr
 
 **IPCV Lab tab:** eight classic syllabus topics, live on your photo: colour spaces, histogram equalisation and CLAHE, noise and denoising, edge detection (Sobel, Prewitt, Laplacian, Canny), thresholding (Otsu, adaptive), morphology, frequency-domain (FFT) filtering, and geometric transforms.
 
+**Image Forgery tab:** Companion project for digital image forensics using Error Level Analysis (ELA), SIFT keypoint matching, and Deep Learning (CNN) with localized tamper heatmaps. Direct links to the deployed app ([image-tamper-detection.onrender.com](https://image-tamper-detection.onrender.com)) and repo ([aaashishguptaaa/image-tamper-detection](https://github.com/aaashishguptaaa/image-tamper-detection)).
+
 **Live Camera:** 15 real-time effects on your webcam, in the browser or in a separate desktop window.
 
 **Batch tab:** run the same edits on a whole folder of photos and download them as a ZIP.
@@ -238,4 +240,16 @@ Haar is very good on upright, frontal faces like these classic test images, but 
 - Haar cascade and test images: [OpenCV](https://github.com/opencv/opencv) and [opencv_extra](https://github.com/opencv/opencv_extra) (BSD licence); the CMU/MIT face test set is a standard research benchmark
 - Sample portrait: NASA (public domain)
 
-Image Processing and Computer Vision Project.
+---
+
+## Team Details (Section A · Team No. 1)
+
+| Member | Roll Number | Primary Contributions |
+|---|---|---|
+| **Aashish Gupta Rauniyar** | 20233501 | Project architecture, multi-scale face detection & pipeline integration |
+| **Bishal Ramjan Sah** | 20233515 | 478-point face mesh, head pose estimation & Haar vs MediaPipe benchmarking |
+| **Amit Kumar** | 20233046 | Enhancement filters, beauty filters & image quality metrics (PSNR, SSIM) |
+| **Ashish Gupta** | 20233511 | Portrait segmentation, background replacement & AR facial overlays |
+| **Anubhav Kaushik** | 20233068 | IPCV Lab demonstrations, live camera processing, UI design & testing |
+
+Image Processing and Computer Vision Project · Section A · Team No. 1.

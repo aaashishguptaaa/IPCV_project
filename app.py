@@ -44,7 +44,13 @@ SAMPLE_DIR = os.path.join(APP_DIR, "sample_images")
 os.makedirs(SAVE_DIR, exist_ok=True)
 MAX_DIM = 1400
 
-TEAM = []
+TEAM = [
+    ("Aashish Gupta Rauniyar", "20233501", "Project architecture, multi-scale face detection & pipeline integration"),
+    ("Bishal Ramjan Sah", "20233515", "478-point face mesh, head pose estimation & Haar vs MediaPipe benchmarking"),
+    ("Amit Kumar", "20233046", "Enhancement filters, beauty filters & image quality metrics (PSNR, SSIM)"),
+    ("Ashish Gupta", "20233511", "Portrait segmentation, background replacement & AR facial overlays"),
+    ("Anubhav Kaushik", "20233068", "IPCV Lab demonstrations, live camera processing, UI design & testing"),
+]
 st.set_page_config(page_title="Face Studio Camera", page_icon="📸", layout="wide",
                    initial_sidebar_state="expanded")
 
@@ -319,7 +325,7 @@ settings = current_settings()
 # ----------------------------------------------------------------------
 # Tabs
 # ----------------------------------------------------------------------
-tabs = st.tabs(["🎛️ Studio", "🧠 Face Analysis", "🔬 IPCV Lab", "🎥 Live Camera", "📦 Batch", "ℹ️ About"])
+tabs = st.tabs(["🎛️ Studio", "🧠 Face Analysis", "🔬 IPCV Lab", "🔍 Image Forgery", "🎥 Live Camera", "📦 Batch", "ℹ️ About"])
 
 
 def need_image():
@@ -576,8 +582,91 @@ with tabs[2]:
                 show(out)
             st.markdown(f'<div class="explain">{txt}</div>', unsafe_allow_html=True)
 
-# ============================ LIVE CAMERA ============================
+# ======================== IMAGE FORGERY DETECTION ========================
 with tabs[3]:
+    st.subheader("🔍 Image Forgery Detection and Localization")
+    st.markdown(
+        "**Digital Image Forensics Companion System** — Forgery detection and localization using "
+        "Error Level Analysis (ELA), Scale-Invariant Feature Transform (SIFT), and Deep Convolutional Neural Networks (CNN)."
+    )
+
+    c_btn1, c_btn2, _ = st.columns([1.6, 1.6, 2.8])
+    with c_btn1:
+        st.link_button("🚀 Open Live Web App (Render)", "https://image-tamper-detection.onrender.com", type="primary", use_container_width=True)
+    with c_btn2:
+        st.link_button("🐙 View GitHub Repository", "https://github.com/aaashishguptaaa/image-tamper-detection", use_container_width=True)
+
+    st.markdown("---")
+
+    # Overview and Methods Cards
+    col_m1, col_m2, col_m3 = st.columns(3)
+    with col_m1:
+        st.markdown("""
+        ### 🧪 Error Level Analysis (ELA)
+        - Analyzes JPEG compression error differences across regions.
+        - Spliced or edited patches exhibit distinct compression artifacts.
+        - Highlights manipulated pixel boundaries in bright colors.
+        """)
+    with col_m2:
+        st.markdown("""
+        ### 🎯 SIFT Keypoint Matching
+        - Scale-Invariant Feature Transform keypoint descriptor matching.
+        - Pinpoints Copy-Move forgery where regions are duplicated or cloned.
+        - Correlates spatial shift vectors between identical regions.
+        """)
+    with col_m3:
+        st.markdown("""
+        ### 🤖 Deep Learning (CNN)
+        - Custom CNN trained to detect subtle tampering anomalies.
+        - Predicts authentic vs. forged class probabilities.
+        - Computes localized forgery heatmaps across suspected regions.
+        """)
+
+    # Interactive ELA Lab on Current Image
+    st.markdown("### 🔬 Interactive ELA (Error Level Analysis) Tool")
+    st.caption("Perform real-time Error Level Analysis on the currently selected image:")
+
+    if original is None:
+        st.info("👈 Upload an image or select a sample image in the sidebar to try local ELA analysis.")
+    else:
+        ela_col1, ela_col2 = st.columns(2)
+        with ela_col1:
+            show(original, "Original Image")
+        with ela_col2:
+            ela_quality = st.slider("JPEG Resave Quality (for compression delta)", min_value=50, max_value=98, value=90, step=2)
+            ela_mult = st.slider("Error Amplification Scale", min_value=5, max_value=40, value=15, step=1)
+
+            # Compute ELA
+            from PIL import ImageChops, ImageEnhance
+            pil_orig = Image.fromarray(cv2.cvtColor(original, cv2.COLOR_BGR2RGB))
+            buf = io.BytesIO()
+            pil_orig.save(buf, "JPEG", quality=ela_quality)
+            buf.seek(0)
+            resaved = Image.open(buf)
+            diff = ImageChops.difference(pil_orig, resaved)
+            extrema = diff.getextrema()
+            max_diff = max([ex[1] for ex in extrema]) if extrema else 1
+            if max_diff == 0:
+                max_diff = 1
+            scale_factor = min(255.0 / max_diff, float(ela_mult))
+            diff_enhanced = ImageEnhance.Brightness(diff).enhance(scale_factor)
+            ela_bgr = cv2.cvtColor(np.array(diff_enhanced), cv2.COLOR_RGB2BGR)
+            show(ela_bgr, f"Error Level Analysis Map (Scale: {scale_factor:.1f}x)")
+
+        st.markdown(
+            '<div class="explain"><b>How to read ELA:</b> Regions with similar error levels typically belong to '
+            'the same original compression generation. Spliced objects from another image or edited patches '
+            'often show significantly higher error brightness or inconsistent grain patterns.</div>',
+            unsafe_allow_html=True,
+        )
+
+    # Embedded Live Project Web Frame
+    with st.expander("🌐 Preview Live Web App Inside Face Studio Camera (image-tamper-detection.onrender.com)", expanded=False):
+        st.caption("Note: Free-tier Render instances may take ~30-50 seconds to spin up on first request.")
+        components.iframe("https://image-tamper-detection.onrender.com", height=650, scrolling=True)
+
+# ============================ LIVE CAMERA ============================
+with tabs[4]:
     try:
         import av
         from streamlit_webrtc import RTCConfiguration, VideoProcessorBase, webrtc_streamer, WebRtcMode
@@ -653,7 +742,7 @@ with tabs[3]:
                     st.image(proc_inst.process(s_img), channels="BGR", use_container_width=True)
 
 # =============================== BATCH ===============================
-with tabs[4]:
+with tabs[5]:
     st.markdown("Apply the **current sidebar pipeline** to many photos at once and download a ZIP.")
     if settings == P.settings_from():
         st.info("The pipeline is empty: pick a preset or move some sliders in the sidebar first.")
@@ -682,7 +771,7 @@ with tabs[4]:
                                mime="application/zip")
 
 # =============================== ABOUT ===============================
-with tabs[5]:
+with tabs[6]:
     a, b = st.columns([3, 2])
     with a:
         st.subheader("Processing pipeline")
@@ -693,8 +782,8 @@ with tabs[5]:
                 "  ▼                                     ▼\n"
                 "1 Enhance → 2 Beauty → 3 Background → 4 Style → 5 Finishing → 6 AR → 7 Privacy\n"
                 "  ▼\nOutput + metrics (PSNR, SSIM, histograms, timing) → PNG / JPEG / ZIP", language=None)
-        st.subheader("About the Project")
-        st.markdown("An interactive Computer Vision studio combining classical image processing with deep-learning facial analysis and segmentation.")
+        st.subheader("Team (Section A · Team No. 1)")
+        table(pd.DataFrame(TEAM, columns=["Member", "Roll no.", "Contribution"]))
     with b:
         st.subheader("Model files")
         stat = model_status()
